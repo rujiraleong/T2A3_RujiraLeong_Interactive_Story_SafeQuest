@@ -1,0 +1,1224 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Pirates gold font */
+@font-face {
+  font-family: "PiratesGold";
+  src: url("./pirates-gold-font.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Pirates writers font */
+@font-face {
+  font-family: "PiratesWriters";
+  src: url("./pirates-writers-font.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  background: #eee;
+  font-family: Arial, sans-serif;
+
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+
+  height: 100vh;
+}
+
+/* Game container */
+#game-container {
+  width: 960px;
+  height: 540px;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+/* ===============================
+   Import Pirates Gold Font
+   =============================== */
+
+#typewriter {
+  font-family: "PiratesGold", serif;
+  font-size: 48px;
+
+  color: #f5c542;
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+/* Only the "Voyage Complete" text */
+#treasure-typewriter {
+  font-family: "PiratesGold", serif;
+  font-size: 48px;           /* same as #typewriter */
+  color: #f5c542;
+  white-space: pre-line;
+
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+/* ===============================
+   Import Pirates Writers Font
+   =============================== */
+
+.intro-paragraph,
+.happy-playing {
+  font-family: "PiratesWriters", cursive;
+
+  font-size: 24px;          /* 👈 clearly larger */
+  line-height: 1.8;
+  letter-spacing: 0.8px;
+
+  color: #f0e6c8;           /* 👈 warm parchment (not white) */
+
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 6px rgba(0, 0, 0, 0.6);
+
+  background: rgba(0, 0, 0, 0.45);
+  padding: 14px 20px;
+  border-radius: 8px;
+
+  display: inline-block;
+}
+
+/* keep only the first sentence on one line */
+.intro-line-one {
+  white-space: nowrap;
+}
+
+/* optional: allow the second sentence to wrap normally */
+.intro-line-two {
+  white-space: normal;
+}
+
+/* Trust Meter */
+#trust-bar {
+  position: absolute;
+  top: 20px;          /* 👈 move it down slightly */
+  left: 20px;         /* (optional) keeps it away from the edge */
+  display: none;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+}
+
+.meter {
+  width: 240px;
+  height: 14px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.fill {
+  width: 50%;
+  height: 100%;
+  background: #f5c542; /* neutral */
+  transition: width 0.4s ease;
+}
+
+.label {
+  opacity: 0.7;
+}
+
+/* ===========================
+   Trust Meter Font Styling
+   =========================== */
+
+#trust-bar,
+#trust-bar span,
+#trust-label {
+  font-family: "PiratesWriters", cursive; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#trust-bar span {
+  font-size: 18px;
+}
+
+#trust-label {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+/* Screens */
+.screen {
+  position: absolute;   /* stack screens on top of each other */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;        /* hidden by default */
+  flex-direction: column;
+}
+
+.screen.active {
+  display: flex;        /* only active screen shows */
+  z-index: 1;
+}
+
+/* Intro content */
+#intro-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical centering */
+  align-items: center;       /* horizontal centering */
+  width: 100%;
+  height: 100%;              /* full game-container height */
+  overflow: hidden;
+  background: #000;
+}
+
+#intro-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* fill container, no gaps */
+  object-position: top center; /* stick to top */
+  z-index: 0;
+}
+
+#intro-content {
+  position: relative;
+  z-index: 1;                /* in front of video */
+  color: #fff;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical centering */
+  align-items: center;       /* horizontal centering */
+  height: 100%;              /* fills container height */
+  gap: 16px;                 /* spacing between title, paragraph, button */
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+
+p {
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.hint {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-bottom: 32px;
+}
+
+/* Typewriter cursor */
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blinkCursor 1s steps(2, start) infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* Intro paragraph fade-in (no layout shift) */
+.intro-paragraph {
+  opacity: 0;
+  transform: translateY(10px); /* visual only, no reflow */
+  transition: opacity 0.6s ease, transform 0.6s ease;
+
+  max-width: 520px;
+  margin: 20px auto;
+  text-align: center;
+
+  display: inline-block;
+  width: max-content;     /* box grows to fit the text */
+  max-width: 90%;         /* but don’t exceed the screen */
+  padding: 14px 20px;
+  box-sizing: border-box;
+  margin-top: -10px;
+}
+
+.intro-paragraph.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Happy playing fade-in */
+.happy-playing {
+  background: none;        /* ❌ remove grey box */
+  padding: 0;              /* ❌ remove spacing */
+  border-radius: 0;
+
+  margin-top: -10px;   /* 👈 moves "Happy playing!" up */
+
+  opacity: 0;
+  transition: opacity 0.6s ease;
+
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 6px rgba(0, 0, 0, 0.6); /* keep readability */
+}
+
+.happy-playing.show {
+  opacity: 1;
+}
+
+/* Start button */
+button {
+  padding: 12px 24px;
+  background: #fff;
+  color: #000;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: #ddd;
+}
+
+h2 {
+  margin-bottom: 12px;
+}
+
+/* Start button slide in */
+#start-btn {
+  opacity: 0;
+  transform: translateX(-20px); /* start slightly left */
+  transition: transform 0.6s ease, opacity 0.6s ease;
+
+  font-family: "PiratesWriters", cursive;
+  font-size: 20px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+#start-btn.show {
+  opacity: 1;
+  transform: translateX(0); /* lands EXACTLY where it already is */
+}
+
+/* ===========================
+   NPC Explainer Screen
+   =========================== */
+
+#npc-screen {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Video background */
+#npc-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+
+  display: block;     /* ✅ prevents inline weirdness */
+  background: #000;   /* fallback */
+}
+
+/* UI layer on top of video */
+#npc-ui {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* Pirate character (left) */
+#npc-image {
+  position: absolute;
+  left: 40px;
+  bottom: 70px;
+  width: 220px;
+  height: auto;
+
+  z-index: 3; /* 👈 bring pirate forward */
+  pointer-events: none; /* optional: prevents blocking clicks */
+
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+}
+
+/* Dialogue box (bottom) */
+#npc-box {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
+
+  z-index: 2; /* 👈 stays behind pirate */
+
+  border: 3px solid #f4c430;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.75);
+  padding: 18px 22px;
+
+  color: #fff;
+  min-height: 120px;
+
+  min-height: 160px;   /* pick a height that fits your longest line */
+  height: 160px;       /* lock it so it won’t resize */
+  padding-bottom: 56px;/* reserve space so button never pushes text */
+  box-sizing: border-box;
+
+  padding-left: 240px; /* makes room for pirate on left */
+}
+
+/* Speaker label */
+#npc-speaker {
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+/* Dialogue text */
+#npc-text {
+  margin: 0;
+  line-height: 1.5;
+  
+  font-size: 22px;
+  line-height: 1.6;
+  letter-spacing: 0.4px;
+
+  max-height: 80px;   /* adjusts how many lines you want visible */
+  overflow: hidden;   /* or "auto" if you want scroll */
+}
+
+/* Next button bottom-right */
+#npc-next-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid #f4c430;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  cursor: pointer;
+
+  opacity: 0;              /* hidden until typing ends */
+  pointer-events: none;    /* unclickable until shown */
+  transition: opacity 0.25s ease;
+
+  font-size: 16px;
+  letter-spacing: 0.6px;
+}
+
+#npc-next-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===========================
+   NPC Dialogue Font Styling
+   =========================== */
+
+#npc-speaker,
+#npc-text,
+#npc-next-btn {
+  font-family: "PiratesWriters", cursive;
+}
+
+/* ✅ Map background video */
+#map-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;        /* behind everything */
+  display: none;     /* only show on map */
+}
+
+/* Make sure these stay above the video */
+#trust-bar { z-index: 5; }
+#map-image { position: relative; z-index: 1; }
+
+/* ===========================
+   MAP CAPTAIN OVERLAY (same alignment as NPC screen)
+   =========================== */
+
+#map-captain-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;           /* above map + trust bar */
+  background: transparent; /* ✅ KEY: do NOT cover the map */
+  pointer-events: none; /* let clicks pass through EXCEPT the button */
+}
+
+#map-npc-ui {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* pirate position = same idea as #npc-image */
+#map-npc-image {
+  position: absolute;
+  left: 40px;
+  bottom: 70px;
+  width: 220px;
+  height: auto;
+
+  z-index: 3;
+  pointer-events: none;
+
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+}
+
+/* dialogue box = same idea as #npc-box */
+#map-npc-box {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
+
+  z-index: 2;
+
+  border: 3px solid #f4c430;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.75);
+  padding: 18px 22px;
+  padding-left: 240px;  /* space for pirate */
+  padding-bottom: 56px; /* space for button */
+
+  height: 160px;
+  box-sizing: border-box;
+
+  pointer-events: auto; /* allow clicking inside box */
+}
+
+/* text style */
+#map-npc-speaker,
+#map-npc-text,
+#map-npc-next-btn {
+  font-family: "PiratesWriters", cursive;
+}
+
+#map-npc-speaker {
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+#map-npc-text {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.6;
+  letter-spacing: 0.4px;
+
+  /* same “don’t clash with button” behaviour */
+  max-height: 80px;
+  overflow: hidden;
+
+  color: #fff;
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+/* next button = same corner placement */
+#map-npc-next-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid #f4c430;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  cursor: pointer;
+
+  font-size: 16px;
+  letter-spacing: 0.6px;
+  pointer-events: auto;
+}
+
+/* Chat area */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  padding-top: 65px;
+}
+
+/* Message stack */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: scroll;
+}
+
+/* Message bubbles */
+.chat-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Stranger (left) */
+.chat-bubble.stranger {
+  background: rgba(30, 30, 30, 0.85);
+  color: #f5f3ee;       /* parchment white */
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+/* Player (right) */
+.chat-bubble.player {
+  background: #007aff;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+/* Choices fixed at bottom */
+.choices {
+  padding: 16px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.typing {
+  display: inline-block;
+  background: #333;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 18px;
+  align-self: flex-start;
+  font-style: italic;
+  opacity: 0.7;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* Player bubble animation */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.chat-bubble.player {
+  background: #007aff;
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* ===========================
+   Chat Background Video
+   =========================== */
+#chat-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+#chat-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25); /* 👈 sheer white wash */
+  z-index: 1;
+  pointer-events: none; /* VERY important */
+}
+
+/* ✅ keep the chat UI above the video (NO alignment change) */
+#q1-screen {
+  position: absolute; /* matches your other .screen behaviour */
+  inset: 0;
+}
+
+/* UI above both */
+#q1-screen .chat-area,
+#q1-screen .choices,
+#trust-bar {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===========================
+   Treasure Background Video
+   =========================== */
+#treasure-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+#treasure-screen > :not(#treasure-bg-video) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===========================
+   Treasure Screen Base
+   =========================== */
+#treasure-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#treasure-ui {
+  /* 🔒 single source of truth */
+  --treasure-offset: 120px;
+
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  position: relative;
+  z-index: 2;
+
+  transform: translateY(var(--treasure-offset));
+  transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
+}
+
+/* ===========================
+   Treasure Title & Hint (SAFE)
+   =========================== */
+
+#treasure-screen .treasure-title,
+#treasure-screen .treasure-hint {
+  margin: 0;
+}
+
+/* Title styling */
+#treasure-screen .treasure-title {
+  font-family: "PiratesGold", serif;
+  font-size: 48px;
+  color: #f5c542;
+
+  margin-bottom: 16px; /* spacing instead of transform */
+
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+/* Hint styling "Click to reveal..." */
+#treasure-screen .treasure-hint {
+  display: block;
+  margin-top: 8px;      /* keep normal spacing */
+  margin-bottom: 32px;
+
+  position: relative;
+  top: -60px;           /* 👈 moves ONLY this line up */
+
+  font-family: "PiratesWriters", cursive;
+  font-size: 28px;
+  color: #f0e6c8;
+
+  text-shadow:
+    2px 2px 4px rgba(0,0,0,0.9),
+    0 0 6px rgba(0,0,0,0.6);
+}
+
+/* Reserve space so the title block doesn't grow during typing */
+#treasure-typewriter {
+  display: inline-block;
+  line-height: 1.1;
+}
+
+/* Only the "SafeQuest Secured" text */
+#treasure-typewriter .line-2 {
+  font-family: "PiratesWriters", cursive;
+  position: relative;
+  font-size: 38px;
+}
+
+/* Lock the height to 2 lines so nothing re-centers while typing */
+#treasure-typewriter .line-1,
+#treasure-typewriter .line-2 {
+  display: block;
+  min-height: 1.2em; /* reserves one line each */
+}
+
+/* ✅ Move ONLY "Voyage Complete" down (flex-safe) */
+#treasure-typewriter .line-1 {
+  position: relative;
+  top: 40px;   /* 👈 THIS WILL FINALLY MOVE IT */
+}
+
+/* Fade only — no layout movement */
+#treasure-screen .treasure-hint.fade-after-type {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+#treasure-screen .treasure-hint.fade-after-type.show {
+  opacity: 0.85;
+}
+
+#treasure-chest {
+  cursor: pointer;
+  margin: 0;
+
+  /* 🔒 LOCKED layout size — prevents text shifting */
+  width: 160px;
+  height: 160px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ✅ smooth hover */
+  transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.treasure-chest-img {
+  width: 400px;
+  height: auto;
+  display: block;
+  
+  transform: translateY(-20px); /* 👈 move UP */
+  pointer-events: none; /* clicks still hit #treasure-chest */
+}
+
+/* Cards container */
+#cards-container {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  /* ✅ layout spacing (SAFE) */
+  margin-top: 30px;
+
+  /* animation only */
+  opacity: 0;
+  transform: translateY(20px);
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+/* 🔒 CLOSED chest screen only: reserve the OLD card height so text NEVER shifts */
+#treasure-screen:not(.revealed) #cards-container {
+  min-height: 290px;  /* 👈 put your ORIGINAL flip-card height here (before you changed it) */
+}
+
+/* ✅ AFTER reveal: allow the container to shrink to match your NEW smaller cards */
+#treasure-screen.revealed #cards-container {
+  min-height: unset;
+}
+
+/* Hover and open chest effects */
+#treasure-chest:hover {
+  transform: scale(1.1);
+}
+
+#treasure-chest.open {
+  transform: scale(1.1);
+}
+
+/* ===========================
+   Treasure Screen Revealed (After Chest Click)
+   =========================== */
+#treasure-screen.revealed #treasure-ui {
+  justify-content: flex-start;
+  --treasure-offset: -60px;
+}
+
+/* Shrink chest emoji on reveal */
+#treasure-screen.revealed #treasure-chest {
+  transform: scale(1.2);
+}
+
+/* Cards appear */
+#treasure-screen.revealed #cards-container {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ✅ ONLY on REVEALED + GIFT screen: move flipcards up (no other screens affected) */
+#treasure-screen.revealed.gift-screen #cards-container {
+  margin-top: -20px; /* change this number */ 
+  transform: translateY(-8px);
+}
+
+/* Gift + revealed */
+#treasure-screen.revealed.gift-screen #treasure-ui {
+  --treasure-offset: 0px;
+}
+
+#treasure-screen.revealed.gift-screen .treasure-title {
+  margin-top: -80px;
+}
+
+/* REVEALED gift screen: shrink "Voyage Complete" */
+#treasure-screen.revealed.gift-screen #treasure-typewriter .line-1 {
+  font-size: 30px; /* 👈 change this */
+  top: -20px;
+}
+
+/* REVEALED gift screen: shrink "SafeQuest Secured" */
+#treasure-screen.revealed.gift-screen #treasure-typewriter .line-2 {
+  font-size: 26px; /* 👈 change this */
+  top: -70px;
+}
+
+/* "Click to reveal..." revealed */
+#treasure-screen.revealed.gift-screen .treasure-hint {
+  margin-top: -80px;
+  font-size: 22px;
+}
+
+/* ✅ ONLY on revealed gift screen: resize the OPEN chest image */
+#treasure-screen.revealed.gift-screen #treasure-chest img {
+  width: 120px;   /* change this number */
+  height: auto;
+  transform: translateY(-50px) scale(1.35);
+}
+
+/* Gift screen baseline */
+#treasure-screen.gift-screen #treasure-ui {
+  justify-content: flex-start;
+  padding-top: 90px;
+  --treasure-offset: 40px;
+}
+
+/* Flip cards */
+.flip-card {
+  width: 510px;
+  height: 230px;
+  perspective: 1000px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flip-card-inner {
+  position: relative;           /* ✅ IMPORTANT: anchors the absolute faces */
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d; /* ✅ keeps 3D flip */
+}
+
+:root {
+  --card-h3: 26px;   /* header biggest */
+  --card-li: 18px;   /* takeaways slightly bigger */
+  --card-btn: 18px;  /* button text bigger */
+}
+
+.flip-card-back h3 {
+  font-size: var(--card-h3);
+  margin: 0 0 10px 0;
+  line-height: 1;      /* keeps it crisp */
+  text-align: center;
+
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.flip-card-back p {
+  font-size: 14px;
+  text-align: center;
+}
+
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Faces */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+}
+
+/* FRONT (yellow coin side) */
+.flip-card-front {
+  background: #f4c430;
+  font-size: 70px;
+
+  justify-content: center;
+}
+
+/* BACK (text side) */
+.flip-card-back {
+  background: #fff;
+  color: #111;
+
+  transform: rotateY(180deg);
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* ✅ force top */
+
+  padding-top: 12px;           /* ✅ shared start line */
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+
+  box-sizing: border-box;
+}
+
+.flip-card-back .takeaways {
+  text-align: left;
+  margin: 6px 0 14px 0;
+  padding-left: 12px;
+  list-style-type: disc;
+
+  font-size: var(--card-li);
+  line-height: 1.6;
+}
+
+/* Claim coin button */
+.claim-coin-btn {
+  font-size: var(--card-btn);   /* ✅ bigger text */
+  padding: 6px 14px;            /* ✅ smaller yellow pill */
+  border-radius: 6px;
+
+  display: inline-block;
+  color: #111;
+  background: #f5c542;
+
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Flip card text font */
+.flip-card-back,
+.flip-card-back h3,
+.flip-card-back .takeaways,
+.flip-card-back .takeaways li,
+.flip-card-back .claim-coin-btn {
+  font-family: "PiratesWriters", cursive;
+}
+
+/* ===========================
+   End Screen Background Video
+   =========================== */
+
+#end-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Background video */
+#end-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  object-position: center top; /* ✅ keeps horizon/ship higher instead of random crop */
+}
+
+/* UI stays ABOVE video */
+#end-ui {
+  position: relative;
+  z-index: 2;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  color: #fff;
+  transform: translateY(-30px);
+}
+
+/* End screen title — Pirates Gold, same as intro */
+#end-ui h2 {
+  font-family: "PiratesGold", serif;
+  font-size: 48px; /* same as #typewriter on intro screen */
+  color: #f5c542;
+
+  text-shadow:
+    0 0 4px #000,
+    0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+/* End screen paragraph — same as intro text */
+#end-ui p {
+  font-family: "PiratesWriters", cursive;
+  font-size: 24px;
+  line-height: 1.8;
+  letter-spacing: 0.8px;
+}
+
+/* End screen button — same size as Start Game */
+#return-home-btn {
+  font-family: "PiratesWriters", cursive;
+  font-size: 20px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* ===========================
+   End Screen Animations (intro-style)
+   =========================== */
+
+/* start hidden like intro */
+#end-ui p {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* fade in when JS adds .show */
+#end-ui p.show {
+  opacity: 1;
+}
+
+/* start hidden + slightly left like intro start button */
+#return-home-btn {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+/* slide in when JS adds .show */
+#return-home-btn.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* NORMAL cursor (hotspot at hook tip) */
+#game-container,
+#game-container * {
+  cursor: url("./captain-hook-cursor-64.png") 29 8, auto;
+}
+
+/* POINTER cursor for clickable things */
+#game-container button,
+#game-container a,
+#game-container area,
+#game-container [role="button"] {
+  cursor: url("./captain-hook-cursor-64.png") 29 8, pointer;
+}
+
+/* ACTIVE cursor while mouse is held down */
+#game-container:active,
+#game-container:active * {
+  cursor: url("./captain-hook-cursor-active-64.png") 29 7, auto;
+}
+
+#game-container button:active,
+#game-container a:active,
+#game-container area:active,
+#game-container [role="button"]:active {
+  cursor: url("./captain-hook-cursor-active-64.png") 29 7, pointer;
+}
+
+/* ===========================
+   FIX: custom hook cursor over <map><area> hotspots
+   =========================== */
+
+/* make sure the image-map hotspots keep YOUR hook pointer */
+map area {
+  cursor: url("./captain-hook-cursor-64.png") 29 8, pointer !important;
+}
+
+/* and keep the "pressed" hook when clicking on hotspots */
+map area:active {
+  cursor: url("./captain-hook-cursor-active-64.png") 29 7, pointer !important;
+}
+
+/* ===========================
+   GLOBAL hook cursor (whole page)
+   =========================== */
+
+/* NORMAL cursor everywhere */
+html, body, * {
+  cursor: url("./captain-hook-cursor-64.png") 29 8, auto;
+}
+
+/* POINTER cursor for clickable things everywhere */
+button, a, area, [role="button"], input, label, select, textarea {
+  cursor: url("./captain-hook-cursor-64.png") 29 8, pointer;
+}
+
+/* ACTIVE cursor while mouse is held down (everywhere) */
+html:active, body:active, *:active {
+  cursor: url("./captain-hook-cursor-active-64.png") 29 7, auto;
+}
+
+/* ACTIVE pointer for clickable things */
+button:active, a:active, area:active, [role="button"]:active {
+  cursor: url("./captain-hook-cursor-active-64.png") 29 7, pointer;
+}
